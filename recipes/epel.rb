@@ -19,17 +19,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-yum_key node['yum']['epel']['key'] do
+yk = yum_key node['yum']['epel']['key'] do
   url  node['yum']['epel']['key_url']
-  action :add
+  action :nothing
 end
 
-yum_repository "epel" do
+yr = yum_repository "epel" do
   description "Extra Packages for Enterprise Linux"
   key node['yum']['epel']['key']
   url node['yum']['epel']['baseurl']
   mirrorlist node['yum']['epel']['url']
   includepkgs node['yum']['epel']['includepkgs']
   exclude node['yum']['epel']['exclude']
-  action platform?('amazon') ? [:add, :update] : :create
+  action platform?('amazon') ? :update : :nothing
+end
+
+# run durring compile time so the yum packages are available to other
+# cookbooks that run durring compile time
+if node['yum']['execute_at_compile_time']
+    yk.run_action(:add)
+    yr.run_action(platform?('amazon') ? [:add, :update] : :create)
 end

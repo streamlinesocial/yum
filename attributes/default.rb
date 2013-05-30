@@ -28,3 +28,8 @@ default['yum']['proxy_username'] = ''
 default['yum']['proxy_password'] = ''
 default['yum']['cachedir'] = '/var/cache/yum'
 default['yum']['keepcache'] = 0
+
+# set this to true in order to handle use cases where other cookbooks depend on yum packages
+# to be available even if they run durring the compile time phase of the chef run
+# http://wiki.opscode.com/display/ChefCN/Evaluate+and+Run+Resources+at+Compile+Time
+default['yum']['execute_at_compile_time'] = false

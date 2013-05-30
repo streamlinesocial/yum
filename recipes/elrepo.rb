@@ -16,16 +16,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-yum_key node['yum']['elrepo']['key'] do
+yk = yum_key node['yum']['elrepo']['key'] do
   url  node['yum']['elrepo']['key_url']
   action :add
 end
 
-yum_repository "elrepo" do
+yr = yum_repository "elrepo" do
   description "ELRepo.org Community Enterprise Linux Extras Repository"
   key node['yum']['elrepo']['key']
   mirrorlist node['yum']['elrepo']['url']
   includepkgs node['yum']['elrepo']['includepkgs']
   exclude node['yum']['elrepo']['exclude']
   action :create
+end
+
+# run durring compile time so the yum packages are available to other
+# cookbooks that run durring compile time
+if node['yum']['execute_at_compile_time']
+    yk.run_action(:add)
+    yr.run_action(platform?('amazon') ? [:add, :update] : :create)
 end
